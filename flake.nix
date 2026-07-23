@@ -11,15 +11,19 @@
 
     uv2nix = {
       url = "github:pyproject-nix/uv2nix";
-      inputs.pyproject-nix.follows = "pyproject-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs = {
+        pyproject-nix.follows = "pyproject-nix";
+        nixpkgs.follows = "nixpkgs";
+      };
     };
 
     pyproject-build-systems = {
       url = "github:pyproject-nix/build-system-pkgs";
-      inputs.pyproject-nix.follows = "pyproject-nix";
-      inputs.uv2nix.follows = "uv2nix";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs = {
+        pyproject-nix.follows = "pyproject-nix";
+        uv2nix.follows = "uv2nix";
+        nixpkgs.follows = "nixpkgs";
+      };
     };
 
     git-hooks.url = "github:cachix/git-hooks.nix";
@@ -134,11 +138,11 @@
           pkgs = nixpkgs.legacyPackages.${system};
           pythonSet = pythonSets.${system}.overrideScope editableOverlay;
           virtualenv = pythonSet.mkVirtualEnv "hello-world-dev-env" workspace.deps.all;
-	  inherit (self.checks.${system}.pre-commit-check) shellHook enabledPackages;
+          inherit (self.checks.${system}.pre-commit-check) shellHook enabledPackages;
         in
         {
           default = pkgs.mkShell {
-	    buildInputs = enabledPackages;
+            buildInputs = enabledPackages;
             packages = [
               virtualenv
               pkgs.uv
@@ -151,7 +155,8 @@
             shellHook = ''
               unset PYTHONPATH
               export REPO_ROOT=$(git rev-parse --show-toplevel)
-            '' + shellHook;
+            ''
+            + shellHook;
           };
         }
       );
