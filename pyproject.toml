@@ -52,7 +52,6 @@ build_command = """
 commit_parser = "conventional"
 
 [tool.semantic_release.changelog]
-changelog_file = "CHANGELOG.md"
 exclude_commit_patterns = [
   '''chore(?:\([^)]*?\))?: .+''',
   '''ci(?:\([^)]*?\))?: .+''',
@@ -62,3 +61,6 @@ exclude_commit_patterns = [
   '''build\((?!deps\): .+)''',
   '''Initial [Cc]ommit.*''',
 ]
+
+[changelog.default_templates.changelog_file]
+changelog_file = "CHANGELOG.md"
