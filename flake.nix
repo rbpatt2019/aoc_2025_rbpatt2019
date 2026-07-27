@@ -11,15 +11,19 @@
 
     uv2nix = {
       url = "github:pyproject-nix/uv2nix";
-      inputs.pyproject-nix.follows = "pyproject-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs = {
+        pyproject-nix.follows = "pyproject-nix";
+        nixpkgs.follows = "nixpkgs";
+      };
     };
 
     pyproject-build-systems = {
       url = "github:pyproject-nix/build-system-pkgs";
-      inputs.pyproject-nix.follows = "pyproject-nix";
-      inputs.uv2nix.follows = "uv2nix";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs = {
+        pyproject-nix.follows = "pyproject-nix";
+        uv2nix.follows = "uv2nix";
+        nixpkgs.follows = "nixpkgs";
+      };
     };
 
     git-hooks.url = "github:cachix/git-hooks.nix";
@@ -95,18 +99,12 @@
               deadnix.enable = true;
               statix.enable = true;
               nixfmt.enable = true;
+              actionlint.enable = true;
               taplo.enable = true;
               mdformat.enable = true;
               ruff-format.enable = true;
               ruff.enable = true;
               uv-check.enable = true;
-              uv-type = {
-                enable = true;
-                name = "uv ty";
-                entry = "${pkgs.uv}/bin/uv check";
-                types = [ "python" ];
-                pass_filenames = false;
-              };
               uv-audit = {
                 enable = true;
                 name = "uv audit";
@@ -133,12 +131,12 @@
         let
           pkgs = nixpkgs.legacyPackages.${system};
           pythonSet = pythonSets.${system}.overrideScope editableOverlay;
-          virtualenv = pythonSet.mkVirtualEnv "hello-world-dev-env" workspace.deps.all;
-	  inherit (self.checks.${system}.pre-commit-check) shellHook enabledPackages;
+          virtualenv = pythonSet.mkVirtualEnv "dev_aoc_2025_rbpatt2019" workspace.deps.all;
+          inherit (self.checks.${system}.pre-commit-check) shellHook enabledPackages;
         in
         {
           default = pkgs.mkShell {
-	    buildInputs = enabledPackages;
+            buildInputs = enabledPackages;
             packages = [
               virtualenv
               pkgs.uv
@@ -151,13 +149,25 @@
             shellHook = ''
               unset PYTHONPATH
               export REPO_ROOT=$(git rev-parse --show-toplevel)
-            '' + shellHook;
+            ''
+            + shellHook;
           };
         }
       );
 
-      packages = forAllSystems (system: {
-        default = pythonSets.${system}.mkVirtualEnv "hello-world-env" workspace.deps.default;
-      });
+      packages = forAllSystems (
+        system:
+        let
+          pythonSet = pythonSets.${system};
+          pkgs = nixpkgs.legacyPackages.${system};
+          inherit (pkgs.callPackages pyproject-nix.build.util { }) mkApplication;
+        in
+        {
+          default = mkApplication {
+            venv = pythonSet.mkVirtualEnv "aoc_2025_rbpatt2019" workspace.deps.default;
+            package = pythonSet.aoc-2025;
+          };
+        }
+      );
     };
 }

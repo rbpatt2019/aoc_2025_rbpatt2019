@@ -1,10 +1,13 @@
 _: {
   projectRootFile = "flake.nix";
-  programs.nixfmt.enable = true;
-  programs.deadnix.enable = true;
-  programs.statix.enable = true;
-  programs.mdformat.enable = true;
-  programs.taplo.enable = true;
-  programs.ruff-format.enable = true;
-  programs.ruff-check.enable = true;
+  programs = {
+    nixfmt.enable = true;
+    deadnix.enable = true;
+    statix.enable = true;
+    actionlint.enable = true;
+    mdformat.enable = true;
+    taplo.enable = true;
+    ruff-format.enable = true;
+    ruff-check.enable = true;
+  };
 }

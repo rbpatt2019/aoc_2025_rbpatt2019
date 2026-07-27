@@ -11,6 +11,8 @@ wheels/
 
 # built by nix
 .pre-commit-config.yaml
+result
 
 # local envs
 .envrc
+.direnv
