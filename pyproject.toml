@@ -35,6 +35,9 @@ target-version = "py314"
 [tool.ruff.lint]
 select = ["ANN", "B", "C4", "C90", "D", "F", "I", "RET", "RUF", "S"]
 
+[tool.ruff.lint.per-file-ignores]
+"src/aoc_2025/base_class.py" = ["D102"]
+
 [tool.ruff.lint.mccabe]
 max-complexity = 5
 
@@ -47,7 +50,7 @@ build_command = """
     python -m pip install -e .[build]
     uv lock --upgrade-package "$PACKAGE_NAME"
     git add uv.lock
-    uv build
+    nix build .#default#default#default
 """
 commit_parser = "conventional"
 
