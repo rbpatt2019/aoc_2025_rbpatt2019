@@ -50,7 +50,7 @@ build_command = """
     python -m pip install -e .[build]
     uv lock --upgrade-package "$PACKAGE_NAME"
     git add uv.lock
-    nix build .#default#default#default
+    uv build
 """
 commit_parser = "conventional"
 
