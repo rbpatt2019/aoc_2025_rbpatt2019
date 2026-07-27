@@ -28,9 +28,6 @@ jobs:
         run: |
           git reset --hard ${{ github.sha }}
 
-      - name: Install Nix
-        uses: nixbuild/nix-quick-install-action@v35
-
       - name: Action | Semantic Version Release
         id: release
         uses: python-semantic-release/python-semantic-release@39dd2052f2ce8282a5d932c31d58a2ca06d2550e
