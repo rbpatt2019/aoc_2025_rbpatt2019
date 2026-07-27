@@ -99,18 +99,12 @@
               deadnix.enable = true;
               statix.enable = true;
               nixfmt.enable = true;
+              actionlint.enable = true;
               taplo.enable = true;
               mdformat.enable = true;
               ruff-format.enable = true;
               ruff.enable = true;
               uv-check.enable = true;
-              uv-type = {
-                enable = true;
-                name = "uv ty";
-                entry = "${pkgs.uv}/bin/uv check";
-                types = [ "python" ];
-                pass_filenames = false;
-              };
               uv-audit = {
                 enable = true;
                 name = "uv audit";
@@ -137,7 +131,7 @@
         let
           pkgs = nixpkgs.legacyPackages.${system};
           pythonSet = pythonSets.${system}.overrideScope editableOverlay;
-          virtualenv = pythonSet.mkVirtualEnv "hello-world-dev-env" workspace.deps.all;
+          virtualenv = pythonSet.mkVirtualEnv "dev_aoc_2025_rbpatt2019" workspace.deps.all;
           inherit (self.checks.${system}.pre-commit-check) shellHook enabledPackages;
         in
         {
@@ -161,8 +155,19 @@
         }
       );
 
-      packages = forAllSystems (system: {
-        default = pythonSets.${system}.mkVirtualEnv "hello-world-env" workspace.deps.default;
-      });
+      packages = forAllSystems (
+        system:
+        let
+          pythonSet = pythonSets.${system};
+          pkgs = nixpkgs.legacyPackages.${system};
+          inherit (pkgs.callPackages pyproject-nix.build.util { }) mkApplication;
+        in
+        {
+          default = mkApplication {
+            venv = pythonSet.mkVirtualEnv "aoc_2025_rbpatt2019" workspace.deps.default;
+            package = pythonSet.aoc-2025;
+          };
+        }
+      );
     };
 }
