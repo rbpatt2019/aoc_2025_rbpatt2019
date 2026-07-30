@@ -16,7 +16,12 @@ def main() -> None:
     }
 
     parser = ArgumentParser(description="Advent of Code, 2025", suggest_on_error=True)
-    parser.add_argument("day", type=str, help="Which day to run", choices=["one"])
+    parser.add_argument(
+        "day",
+        type=str,
+        help="Which day to run",
+        choices=[key.lower() for key in classes.keys()],
+    )
     args = parser.parse_args()
 
     print(classes[args.day]().run())

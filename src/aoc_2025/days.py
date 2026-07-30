@@ -1,5 +1,6 @@
 """The code for each days challenge."""
 
+import re
 from dataclasses import dataclass
 
 from .base_class import STATIC, Day
@@ -60,3 +61,51 @@ class One(Day):
                 idx = (idx + move) % self.length
 
         return str(count)
+
+
+@dataclass
+class Two(Day):
+    """Day two."""
+
+    def a(self) -> str:
+        """Find all numbers in a range that have symmetrical halves.
+
+        Returns:
+            str: the sum of all numbers that are symmetrical.
+        """
+        with open(STATIC / "2a.txt") as file:
+            ranges = [pair.split("-") for pair in file.readline().strip().split(",")]
+            ranges = [range(int(x), int(y) + 1) for (x, y) in ranges]
+
+        def _is_symmetric(x: int) -> bool:
+            """Test if an integer is symmetric."""
+            val = str(x)
+            length = len(val)
+            if length % 2 == 0:
+                return val[: length // 2] == val[length // 2 :]
+            return False
+
+        return str(sum(x for span in ranges for x in span if _is_symmetric(x)))
+
+    def b(self) -> str:
+        r"""Find all numbers that are composed of substrings.
+
+        I initially thought to generalise the above to accept a substring parameter,
+        rather than just hardcoding 2;
+        however, it creates an ugly loop to check over all those values for each entry in the range.
+        Regex provides a tidy solution!
+        Explanation: ``(.+)`` capture a group composed of any number of any characters
+        ``\1+`` match the group any number of times
+
+        We then use full match to make sure that the whole string is a match,
+        avoiding matches in strings like ``1232323234``.
+
+        Returns:
+            str: the sum of all numbers that are composed of substrings.
+        """
+        with open(STATIC / "2a.txt") as file:
+            ranges = [pair.split("-") for pair in file.readline().strip().split(",")]
+            ranges = [range(int(x), int(y) + 1) for (x, y) in ranges]
+
+        pattern = re.compile(r"(.+)\1+")
+        return str(sum(x for span in ranges for x in span if pattern.fullmatch(str(x))))
