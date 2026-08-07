@@ -5,7 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 authors = [{ name = "rbpatt2019", email = "rb.patterson.cross@gmail.com" }]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = ["mypy>=2.2.0,<3.0.0"]
 
 [project.scripts]
 aoc-2025 = "aoc_2025:main"
