@@ -1,27 +1,23 @@
 [project]
 name = "aoc-2025"
 version = "0.0.0"
-description = "Add your description here"
+description = "AOC 2025"
 readme = "README.md"
 authors = [{ name = "rbpatt2019", email = "rb.patterson.cross@gmail.com" }]
 requires-python = ">=3.14"
-dependencies = ["mypy>=2.2.0,<3.0.0"]
+dependencies = []
 
 [project.scripts]
 aoc-2025 = "aoc_2025:main"
 
 [project.optional-dependencies]
-build = ["uv>=0.11.31,<0.12.0"]
+build = ["certifi>=2026.7.22", "uv>=0.12.15"]
 
 [dependency-groups]
-dev = [
-  "python-semantic-release>=10.6.1,<11.0.0",
-  "ruff>=0.15.22,<1.0.0",
-  "ty>=0.0.63,<0.1.0",
-]
+dev = ["ruff>=0.15.22,<1.0.0", "ty>=0.0.63,<0.1.0"]
 
 [build-system]
-requires = ["uv_build>=0.11.28,<0.12.0"]
+requires = ["uv_build>=0.12.15,<0.13.0"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
@@ -43,27 +39,3 @@ max-complexity = 5
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
-
-[tool.semantic_release]
-version_toml = ["pyproject.toml:project.version"]
-build_command = """
-    python -m pip install -e .[build]
-    uv lock --upgrade-package "$PACKAGE_NAME"
-    git add uv.lock
-    uv build
-"""
-commit_parser = "conventional"
-
-[tool.semantic_release.changelog]
-exclude_commit_patterns = [
-  '''chore(?:\([^)]*?\))?: .+''',
-  '''ci(?:\([^)]*?\))?: .+''',
-  '''refactor(?:\([^)]*?\))?: .+''',
-  '''style(?:\([^)]*?\))?: .+''',
-  '''test(?:\([^)]*?\))?: .+''',
-  '''build\((?!deps\): .+)''',
-  '''Initial [Cc]ommit.*''',
-]
-
-[changelog.default_templates.changelog_file]
-changelog_file = "CHANGELOG.md"

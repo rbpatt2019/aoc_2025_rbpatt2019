@@ -112,11 +112,13 @@
             {
               # drv is RO, so this will fail if there are updates
               uv-lock = runCommand "uv-lock" ''
+                SSL_CERT_FILE="${buildVenv}/lib/python3.14/site-packages/certifi/cacert.pem" \
                 ${buildVenv}/bin/uv lock --project $src \
                 --upgrade --no-cache -p ${buildVenv}/bin/python &&
                 touch $out
               '';
               uv-audit = runCommand "uv-audit" ''
+                SSL_CERT_FILE="${buildVenv}/lib/python3.14/site-packages/certifi/cacert.pem" \
                 ${buildVenv}/bin/uv audit --project $src \
                 --preview-features audit-command --no-cache --frozen --no-dev &&
                 touch $out
@@ -176,9 +178,9 @@
                 enable = true;
                 entry = lib.mkForce "${devVenv}/bin/ruff check";
               };
-              uv-check = {
+              ty = {
                 enable = true;
-                entry = lib.mkForce "${devVenv}/bin/uv check";
+                entry = lib.mkForce "${devVenv}/bin/ty check";
                 pass_filenames = false;
               };
               nix-flake-check = {
