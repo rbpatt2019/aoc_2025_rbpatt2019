@@ -2,6 +2,7 @@
 
 import re
 from dataclasses import dataclass
+from itertools import combinations
 
 from .base_class import STATIC, Day
 
@@ -109,3 +110,49 @@ class Two(Day):
 
         pattern = re.compile(r"(.+)\1+")
         return str(sum(x for span in ranges for x in span if pattern.fullmatch(str(x))))
+
+
+@dataclass
+class Three(Day):
+    """Day three."""
+
+    def a(self) -> str:
+        """Find the largest pair of numbers in a string.
+
+        Returns:
+            str: The sum of all maximum pairs.
+        """
+        with open(STATIC / "3.txt") as file:
+            batteries = [line.strip() for line in file]
+
+        return str(
+            sum(
+                int("".join(sorted(combinations(bank, 2), reverse=True)[0]))
+                for bank in batteries
+            )
+        )
+
+    def b(self) -> str:
+        """So the above absolutely fried my Mac when looking for 12-ples.
+
+        Instead, we need to implement a more efficient search.
+        Thank you to many google hits for help.
+
+        Returns:
+            str: The sum of all maximum 12-ples.
+        """
+        with open(STATIC / "3.txt") as file:
+            batteries = [line.strip() for line in file]
+
+        def _max(bank: str, size: int) -> int:
+            """Find the largest size-tuple in a string."""
+            val = ""
+            split = list(bank)
+            while size > 0:
+                size -= 1
+                max_val = max(split[: len(split) - size])
+                val += max_val
+                split = split[split.index(max_val) + 1 :]
+            return int(val)
+
+        return str(sum(_max(bank, 12) for bank in batteries))
