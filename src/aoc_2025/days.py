@@ -133,5 +133,26 @@ class Three(Day):
         )
 
     def b(self) -> str:
-        """Hold."""
-        return "hold"
+        """So the above absolutely fried my Mac when looking for 12-ples.
+
+        Instead, we need to implement a more efficient search.
+        Thank you to many google hits for help.
+
+        Returns:
+            str: The sum of all maximum 12-ples.
+        """
+        with open(STATIC / "3.txt") as file:
+            batteries = [line.strip() for line in file]
+
+        def _max(bank: str, size: int) -> int:
+            """Find the largest size-tuple in a string."""
+            val = ""
+            split = list(bank)
+            while size > 0:
+                size -= 1
+                max_val = max(split[: len(split) - size])
+                val += max_val
+                split = split[split.index(max_val) + 1 :]
+            return int(val)
+
+        return str(sum(_max(bank, 12) for bank in batteries))
