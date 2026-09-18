@@ -207,12 +207,20 @@ class Four(Day):
         return str(len(list(_count_surround(grid, "@", 4))))
 
     def b(self) -> str:
-        """So the above absolutely fried my Mac when looking for 12-ples.
+        """Find total number of rolls.
 
-        Instead, we need to implement a more efficient search.
-        Thank you to many google hits for help.
+        It's unclear to me from the prompt whether this is a greedy search or an optimised solution.
+        Choosing to be greedy. Just keep running until length is 0.
 
         Returns:
-            str: The sum of all maximum 12-ples.
+            str: The number of rolls that can be removed.
         """
-        return ""
+        with open(STATIC / "4.txt") as file:
+            grid = [list(line.strip()) for line in file.readlines()]
+
+        count = 0
+        while len(rolls := list(_count_surround(grid, "@", 4))) > 0:
+            count += len(rolls)
+            for x, y in rolls:
+                grid[x][y] = "."
+        return str(count)
