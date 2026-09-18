@@ -161,11 +161,12 @@ class Three(Day):
 
 def _count_surround(
     data: list[list[str]], val: str, threshold: int
-) -> Generator[bool, None, None]:
+) -> Generator[tuple[int, int], None, None]:
     """Determine if there are too many elements around a value.
 
     For a 2D grid, at each point, check how many of the surrounding points are ``val``.
-    Then, check if that is more than threshold.
+    Then, check if that is >= threshold.
+    If less than threshould, return the coordinates.
 
     Args:
         data (list[list[str]]): a 2D data grid
@@ -173,7 +174,7 @@ def _count_surround(
         threshold (int): how many cells is too many
 
     Returns:
-        Generator[bool, None, None]: generator of booleans. True if count < threshold.
+        Generator[tuple[int, int], None, None]: generator of coordinates.
     """
     search = [(i, j) for i in (-1, 0, 1) for j in (-1, 0, 1) if not (i == j == 0)]
 
@@ -187,7 +188,8 @@ def _count_surround(
                 # boundary check
                 if (0 <= x + i < len(data) and 0 <= y + j < len(row))
             ]
-            yield sum(count) < threshold
+            if sum(count) < threshold:
+                yield x, y
 
 
 @dataclass
@@ -202,7 +204,7 @@ class Four(Day):
         """
         with open(STATIC / "4.txt") as file:
             grid = [list(line.strip()) for line in file.readlines()]
-        return str(sum(_count_surround(grid, "@", 4)))
+        return str(len(list(_count_surround(grid, "@", 4))))
 
     def b(self) -> str:
         """So the above absolutely fried my Mac when looking for 12-ples.
