@@ -3,9 +3,9 @@
 import re
 from dataclasses import dataclass
 from itertools import combinations
-from typing import Generator
 
 from .base_class import STATIC, Day
+from .utils import count_surround
 
 
 @dataclass
@@ -159,39 +159,6 @@ class Three(Day):
         return str(sum(_max(bank, 12) for bank in batteries))
 
 
-def _count_surround(
-    data: list[list[str]], val: str, threshold: int
-) -> Generator[tuple[int, int], None, None]:
-    """Determine if there are too many elements around a value.
-
-    For a 2D grid, at each point, check how many of the surrounding points are ``val``.
-    Then, check if that is >= threshold.
-    If less than threshould, return the coordinates.
-
-    Args:
-        data (list[list[str]]): a 2D data grid
-        val (str): the check value
-        threshold (int): how many cells is too many
-
-    Returns:
-        Generator[tuple[int, int], None, None]: generator of coordinates.
-    """
-    search = [(i, j) for i in (-1, 0, 1) for j in (-1, 0, 1) if not (i == j == 0)]
-
-    for x, row in enumerate(data):
-        for y, cell in enumerate(row):
-            if cell != val:
-                continue
-            count = [
-                data[x + i][y + j] == val
-                for i, j in search
-                # boundary check
-                if (0 <= x + i < len(data) and 0 <= y + j < len(row))
-            ]
-            if sum(count) < threshold:
-                yield x, y
-
-
 @dataclass
 class Four(Day):
     """Day four."""
@@ -204,7 +171,7 @@ class Four(Day):
         """
         with open(STATIC / "4.txt") as file:
             grid = [list(line.strip()) for line in file.readlines()]
-        return str(len(list(_count_surround(grid, "@", 4))))
+        return str(len(list(count_surround(grid, "@", 4))))
 
     def b(self) -> str:
         """Find total number of rolls.
@@ -219,8 +186,52 @@ class Four(Day):
             grid = [list(line.strip()) for line in file.readlines()]
 
         count = 0
-        while len(rolls := list(_count_surround(grid, "@", 4))) > 0:
+        while len(rolls := list(count_surround(grid, "@", 4))) > 0:
             count += len(rolls)
             for x, y in rolls:
                 grid[x][y] = "."
         return str(count)
+
+
+@dataclass
+class Five(Day):
+    """Day five.
+
+    I got thoroughly nerd sniped and tried to implement a search for the first.
+    Turns out, relatively straightforward list comprehensions will solve both parts.
+    """
+
+    def a(self) -> str:
+        """Figure out which values are in a range."""
+        with open(STATIC / "5.txt") as file:
+            contents = [line.strip() for line in file]
+
+        split_idx = contents.index("")
+        ranges = [[int(y) for y in x.split("-")] for x in contents[:split_idx]]
+        vals = [int(x) for x in contents[split_idx + 1 :]]
+
+        return str(
+            len(
+                [
+                    val
+                    for val in vals
+                    if any(val >= left and val <= right for left, right in ranges)
+                ]
+            )
+        )
+
+    def b(self) -> str:
+        """Figure out values in every range."""
+        with open(STATIC / "5.txt") as file:
+            contents = [line.strip() for line in file]
+
+        split_idx = contents.index("")
+        ranges = sorted([int(y) for y in x.split("-")] for x in contents[:split_idx])
+
+        merged = [ranges[0]]
+        for span in ranges[1:]:
+            if merged[-1][0] <= span[0] <= merged[-1][1]:
+                merged[-1][1] = max(merged[-1][1], span[1])
+            else:
+                merged.append(span)
+        return str(sum(right - left + 1 for left, right in merged))
