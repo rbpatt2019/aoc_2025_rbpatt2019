@@ -1,8 +1,9 @@
 """The code for each days challenge."""
 
+import math
 import re
 from dataclasses import dataclass
-from itertools import combinations
+from itertools import combinations, groupby
 
 from .base_class import STATIC, Day
 from .utils import count_surround
@@ -235,3 +236,58 @@ class Five(Day):
             else:
                 merged.append(span)
         return str(sum(right - left + 1 for left, right in merged))
+
+
+@dataclass
+class Six(Day):
+    """Day six."""
+
+    def a(self) -> str:
+        """Perform column-wise operations, where the operator is in the last row."""
+        with open(STATIC / "6.txt") as file:
+            columns = list(zip(*[line.strip().split() for line in file], strict=True))
+
+        total = 0
+        for col in columns:
+            match col[-1]:
+                case "+":
+                    total += sum(int(x) for x in col[:-1])
+                case "*":
+                    total += math.prod(int(x) for x in col[:-1])
+                case _:
+                    raise Exception("Operation not supported.")
+        return str(total)
+
+    def b(self) -> str:
+        """Right to left, column-wise, white space significant parsing.
+
+        Comments left in code for more details.
+        """
+        with open(STATIC / "6.txt") as file:
+            *nums, ops = [line.strip("\n") for line in file]
+
+        # Classic nested list rotation
+        columns = list(zip(*nums, strict=True))[::-1]
+        ops = ops.split()[::-1]
+
+        # Use groupby to split on columns that are fully white space
+        integers = [
+            [int("".join(col)) for col in group]
+            for key, group in groupby(
+                columns, key=lambda col: all(char == " " for char in col)
+            )
+            if not key
+        ]
+
+        # Do the math
+        total = 0
+        for group, op in zip(integers, ops, strict=True):
+            match op:
+                case "+":
+                    total += sum(int(x) for x in group)
+                case "*":
+                    total += math.prod(int(x) for x in group)
+                case _:
+                    raise Exception("Operation not supported.")
+
+        return str(total)
