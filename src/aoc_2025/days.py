@@ -291,3 +291,51 @@ class Six(Day):
                     raise Exception("Operation not supported.")
 
         return str(total)
+
+
+@dataclass
+class Seven(Day):
+    """Day 7."""
+
+    def a(self) -> str:
+        """Find the number of beam splits in the input."""
+        with open(STATIC / "7.txt") as file:
+            header, *lines = [line.strip() for line in file]
+
+        # Set a beam at the initial position
+        beams = [False] * len(header)
+        beams[header.index("S")] = True
+
+        # Count splits, as multiple beams could end up in each slot
+        splits = 0
+        for line in lines:
+            for i, char in enumerate(line):
+                if char == "^" and beams[i]:
+                    beams[i - 1] = True
+                    beams[i + 1] = True
+                    beams[i] = False
+                    splits += 1
+
+        return str(splits)
+
+    def b(self) -> str:
+        """Count the number of possible paths.
+
+        The number of active timelines is the same as the sum of the number of paths that go through each column.
+        We can achieve this by simply counting rather than storing booleans.
+        """
+        with open(STATIC / "7.txt") as file:
+            header, *lines = [line.strip() for line in file]
+
+        # Set a beam at the initial position
+        beams = [0] * len(header)
+        beams[header.index("S")] = 1
+
+        for line in lines:
+            for i, char in enumerate(line):
+                if char == "^" and beams[i]:
+                    beams[i - 1] += beams[i]
+                    beams[i + 1] += beams[i]
+                    beams[i] = 0
+
+        return str(sum(beams))
