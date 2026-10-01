@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from itertools import combinations, groupby
 
 from .base_class import STATIC, Day
-from .utils import count_surround
+from .utils import UnionFind, count_surround
 
 
 @dataclass
@@ -339,3 +339,47 @@ class Seven(Day):
                     beams[i] = 0
 
         return str(sum(beams))
+
+
+@dataclass
+class Eight(Day):
+    """Day 8."""
+
+    def a(self) -> str:
+        """Find the number of boxes in the 3 largest circuits."""
+        with open(STATIC / "8.txt") as file:
+            points = [tuple(int(x) for x in line.strip().split(",")) for line in file]
+
+        # find all pairwise distances and sort
+        ordered_pairs = sorted(
+            combinations(points, 2), key=lambda pair: math.dist(*pair)
+        )
+
+        # Merge the first 1000 pairs
+        network = UnionFind(points)
+        for x, y in ordered_pairs[:1000]:
+            network.union(x, y)
+
+        return str(math.prod(sorted(network.set_sizes, reverse=True)[:3]))
+
+    def b(self) -> str:
+        """Find the last points joined to the circuit.
+
+        Same as part a, but go through all pairs rather than just first 1000.
+        """
+        with open(STATIC / "8.txt") as file:
+            points = [tuple(int(x) for x in line.strip().split(",")) for line in file]
+
+        # find all pairwise distances and sort
+        ordered_pairs = sorted(
+            combinations(points, 2), key=lambda pair: math.dist(*pair)
+        )
+
+        # Operate on all pairs until...
+        network = UnionFind(points)
+        for x, y in ordered_pairs:
+            network.union(x, y)
+            if len(network.set_sizes) == 1:  # there is only one network left.
+                return str(math.prod([x[0], y[0]]))
+        else:
+            raise Exception("Ran out of pairs")
