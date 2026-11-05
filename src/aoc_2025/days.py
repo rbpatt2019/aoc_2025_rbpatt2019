@@ -3,7 +3,7 @@
 import math
 import re
 from dataclasses import dataclass
-from itertools import combinations, groupby
+from itertools import combinations, groupby, pairwise
 
 from .base_class import STATIC, Day
 from .utils import UnionFind, count_surround
@@ -383,3 +383,63 @@ class Eight(Day):
                 return str(math.prod([x[0], y[0]]))
         else:
             raise Exception("Ran out of pairs")
+
+
+@dataclass
+class Nine(Day):
+    """Day 9."""
+
+    def a(self) -> str:
+        """Find the largest rectangle defined by the points."""
+        with open(STATIC / "9.txt") as file:
+            points = [tuple(int(x) for x in line.strip().split(",")) for line in file]
+
+        areas = [
+            (abs(a[0] - b[0]) + 1) * (abs(a[1] - b[1]) + 1)
+            for a, b in combinations(points, 2)
+        ]
+
+        return str(max(areas))
+
+    def b(self) -> str:
+        """Find the largest rectangle contained within the polygon defined by the points.
+
+        Will admit, I absolutely hit a wall with this one.
+        There are lots of very clever ways and external packages that make this easier.
+        To stick with base python, however, we take a slightly different approach:
+        check that no line segment defined by a green pair of tiles intersects a red rectangle.
+
+        Sorting rectangles by area means we can stop the moment we find a rectangle that is valid.
+        Sorting boundaries by length is a bit cheeky, but longer is more likely to intersect.
+        """
+        with open(STATIC / "9.txt") as file:
+            points = [tuple(int(x) for x in line.strip().split(",")) for line in file]
+
+        area = lambda pts: (
+            (abs(pts[0][0] - pts[1][0]) + 1) * (abs(pts[0][1] - pts[1][1]) + 1)
+        )
+
+        boundaries = sorted(
+            pairwise([*points, points[0]]),
+            key=lambda pair: math.dist(*pair),
+            reverse=True,
+        )
+        boundaries = [  # force u, v to be lower right, with 0, 0 as top right
+            ((min(x, u), min(y, v)), (max(x, u), max(y, v)))
+            for (x, y), (u, v) in boundaries
+        ]
+
+        rectangles = sorted(combinations(points, 2), key=area, reverse=True)
+        rectangles = [  # force u, v to be lower right, with 0, 0 as top right
+            ((min(x, u), min(y, v)), (max(x, u), max(y, v)))
+            for (x, y), (u, v) in rectangles
+        ]
+
+        for (x, y), (u, v) in rectangles:
+            for (a, b), (c, d) in boundaries:
+                if a < u and b < v and c > x and d > y:
+                    break  # break as soon as one fails
+            else:  # return as soon as one is unbroken, as sorted
+                return str(area(((x, y), (u, v))))
+        else:
+            raise Exception("ran out of rectangles")
